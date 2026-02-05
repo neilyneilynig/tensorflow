@@ -80,10 +80,13 @@ import argparse
 import datetime
 import fcntl
 import json
+import logging
 import os
 import shutil
 
 from google.cloud import datastore
+
+logger = logging.getLogger(__name__)
 
 
 def is_real_file(dirpath, fname):
@@ -206,7 +209,7 @@ def upload_benchmark_files(opts):
           shutil.move(fpath, os.path.join(opts.archivedir, fname))
           # unlock(fd) -- When "with open()" closes fd, the lock is released.
     except Exception as e:  # pylint: disable=broad-except
-      print("Cannot process '%s', skipping. Error: %s" % (fpath, e))
+      logger.exception("Cannot process '%s', skipping. Error: %s", fpath, e)
 
 
 def parse_cmd_line():

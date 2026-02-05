@@ -16,12 +16,16 @@
 
 from absl import app
 from tensorflow.tools.test import system_info_lib
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def main(unused_args):
   config = system_info_lib.gather_machine_configuration()
-  print(config)
+  logger.info("%s", config)
 
 
 if __name__ == "__main__":
+  logging.basicConfig()
   app.run()  # pylint: disable=no-value-for-parameter

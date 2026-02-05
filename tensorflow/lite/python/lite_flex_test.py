@@ -170,7 +170,8 @@ class FromConcreteFunctionTest(test_util.TensorFlowTestCase,
       l = list_ops.tensor_list_reserve(
           element_dtype=tf.int64, element_shape=[None, 1], num_elements=2)
       init_state = (0, x, l)
-      condition = lambda i, x, l: i < 2
+      def _condition(i, x, l):
+        return i < 2
 
       def body(i, x, l):
         element = tf.where(x[i])

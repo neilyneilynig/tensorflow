@@ -42,7 +42,8 @@ def make_tensor_list_dynamic_shape_tests(options):
         element_dtype=parameters["element_dtype"])
 
     init_state = (0, tensor_list)
-    condition = lambda i, _: i < parameters["num_elements"]
+    def _condition(i, _):
+      return i < parameters["num_elements"]
 
     def loop_body(i, tensor_list):
       new_item = tf.add(

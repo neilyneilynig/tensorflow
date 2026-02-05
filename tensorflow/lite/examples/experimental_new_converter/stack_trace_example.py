@@ -26,7 +26,8 @@ def suppress_exception(f):
   def wrapped():
     try:
       f()
-    except:  # pylint: disable=bare-except
+    except Exception:  # pylint: disable=broad-except
+      # Intentionally suppress exceptions for the example wrapper.
       pass
   return wrapped
 

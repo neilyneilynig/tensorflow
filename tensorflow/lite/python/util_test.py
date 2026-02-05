@@ -106,9 +106,13 @@ class UtilTest(test_util.TensorFlowTestCase):
   def testRemoveLowerUsingSwitchMerge(self):
     with ops.Graph().as_default():
       i = array_ops.placeholder(dtype=dtypes.int32, shape=())
-      c = lambda i: math_ops.less(i, 10)
-      b = lambda i: math_ops.add(i, 1)
-      while_loop.while_loop(c, b, [i])
+      def _cond(i):
+        return math_ops.less(i, 10)
+
+      def _body(i):
+        return math_ops.add(i, 1)
+
+      while_loop.while_loop(_cond, _body, [i])
       sess = session.Session()
 
     new_graph_def = convert_to_constants.disable_lower_using_switch_merge(

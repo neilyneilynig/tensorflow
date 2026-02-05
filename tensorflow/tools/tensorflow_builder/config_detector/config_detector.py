@@ -64,11 +64,14 @@ import json
 import re
 import subprocess
 import sys
+import logging
 
 from absl import app
 from absl import flags
 
 from tensorflow.tools.tensorflow_builder.config_detector.data import cuda_compute_capability
+
+logger = logging.getLogger(__name__)
 
 FLAGS = flags.FLAGS
 # Define all flags
@@ -160,9 +163,9 @@ def get_platform():
   platform_detected = out.strip().lower()
   if platform_detected != "linux":
     if err and FLAGS.debug:
-      print("Error in detecting platform:\n %s" % str(err))
+      logger.debug("Error in detecting platform:\n %s", str(err))
 
-    print("Error: Detected unsupported operating system.\nStopping...")
+    logger.error("Error: Detected unsupported operating system.\nStopping...")
     sys.exit(1)
   else:
     PLATFORM = platform_detected
@@ -181,7 +184,7 @@ def get_cpu_type():
   out, err = run_shell_cmd(cmds_all[PLATFORM][key])
   cpu_detected = out.split(b":")[1].strip()
   if err and FLAGS.debug:
-    print("Error in detecting CPU type:\n %s" % str(err))
+    logger.debug("Error in detecting CPU type:\n %s", str(err))
 
   return cpu_detected
 
@@ -196,7 +199,7 @@ def get_cpu_arch():
   key = "cpu_arch"
   out, err = run_shell_cmd(cmds_all[PLATFORM][key])
   if err and FLAGS.debug:
-    print("Error in detecting CPU arch:\n %s" % str(err))
+    logger.debug("Error in detecting CPU arch:\n %s", str(err))
 
   return out.strip(b"\n")
 
@@ -211,7 +214,7 @@ def get_distrib():
   key = "distrib"
   out, err = run_shell_cmd(cmds_all[PLATFORM][key])
   if err and FLAGS.debug:
-    print("Error in detecting distribution:\n %s" % str(err))
+    logger.debug("Error in detecting distribution:\n %s", str(err))
 
   return out.strip(b"\n")
 
@@ -226,8 +229,8 @@ def get_distrib_version():
   key = "distrib_ver"
   out, err = run_shell_cmd(cmds_all[PLATFORM][key])
   if err and FLAGS.debug:
-    print(
-        "Error in detecting distribution version:\n %s" % str(err)
+    logger.debug(
+        "Error in detecting distribution version:\n %s", str(err)
     )
 
   return out.strip(b"\n")
@@ -251,7 +254,7 @@ def get_gpu_type():
   ret_val = out.split(b" ")
   gpu_id = ret_val[0]
   if err and FLAGS.debug:
-    print("Error in detecting GPU type:\n %s" % str(err))
+    logger.debug("Error in detecting GPU type:\n %s", str(err))
 
   if not isinstance(ret_val, list):
     GPU_TYPE = "unknown"
@@ -280,7 +283,7 @@ def get_gpu_count():
   key = "gpu_count_no_sudo"
   out, err = run_shell_cmd(cmds_all[PLATFORM][key])
   if err and FLAGS.debug:
-    print("Error in detecting GPU count:\n %s" % str(err))
+    logger.debug("Error in detecting GPU count:\n %s", str(err))
 
   return out.strip(b"\n")
 
@@ -313,7 +316,7 @@ def get_cuda_version_all():
       all_vers.append(ver_re.group(1).strip("-"))
 
   if err and FLAGS.debug:
-    print("Error in detecting CUDA version:\n %s" % str(err))
+    logger.debug("Error in detecting CUDA version:\n %s", str(err))
 
   return all_vers
 
@@ -346,12 +349,12 @@ def get_cuda_version_default():
 
     except Exception as e:
       if FLAGS.debug:
-        print("\nWarning: Encountered issue while retrieving default CUDA "
-              "version. (%s) Trying a different method...\n" % e)
+        logger.debug("\nWarning: Encountered issue while retrieving default CUDA "
+              "version. (%s) Trying a different method...\n", e)
 
       if i == len(cmd_list) - 1:
         if FLAGS.debug:
-          print("Error: Cannot retrieve CUDA default version.\nStopping...")
+          logger.debug("Error: Cannot retrieve CUDA default version.\nStopping...")
 
       else:
         pass
