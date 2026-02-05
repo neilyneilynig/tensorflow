@@ -155,8 +155,9 @@ def create_scalar_data(dtype, min_value=-100, max_value=100):
   elif dtype == tf.bool:
     value = np.random.choice([True, False])
   elif dtype == np.bytes_:
-    l = np.random.randint(1, 6)
-    value = "".join(np.random.choice(list(string.ascii_uppercase), size=l))
+    size_n = np.random.randint(1, 6)
+    value = "".join(
+        np.random.choice(list(string.ascii_uppercase), size=size_n))
   elif dtype == tf.bfloat16:
     value = (max_value - min_value) * np.random.random() + min_value
     # There is no bfloat16 type in numpy. Uses ml_dtypes.bfloat16 for Eigen.

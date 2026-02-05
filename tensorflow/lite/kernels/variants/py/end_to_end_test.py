@@ -58,7 +58,8 @@ class ListOpsTest(parameterized.TestCase):
 
   def _get_tfl_tf_outputs(self, tf_callable, *inp):
     interpreter = self._get_interpreter_from_c_func(tf_callable)
-    get_inp_index = lambda i: interpreter.get_input_details()[i]["index"]
+    def get_inp_index(i):
+      return interpreter.get_input_details()[i]["index"]
     for i, arr in enumerate(inp):
       interpreter.resize_tensor_input(get_inp_index(i), arr.shape)
     interpreter.allocate_tensors()

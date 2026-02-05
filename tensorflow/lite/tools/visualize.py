@@ -499,7 +499,9 @@ def create_html(tflite_input, input_is_filepath=True):  # pylint: disable=invali
   html += "<table class='data-table'>\n"
   for key, mapping in toplevel_stuff:
     if not mapping:
-      mapping = lambda x: x
+      def _identity(x):
+        return x
+      mapping = _identity
     val = mapping(data.get(key))
     html += ("<tr><th>%s</th><td><div class='cell-content'>%s</div></td></tr>\n"
              % (key, val))

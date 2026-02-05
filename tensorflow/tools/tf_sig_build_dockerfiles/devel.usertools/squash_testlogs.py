@@ -28,18 +28,23 @@ invocation, since the normal logs that Bazel creates are too large for the
 internal invocation viewer.
 """
 import collections
+import logging
 import os
 import re
 import subprocess
 import sys
 from junitparser import JUnitXml
 
+logger = logging.getLogger(__name__)
+
+logging.basicConfig()
+
 result = JUnitXml()
 try:
   files = subprocess.check_output(
       ["grep", "-rlE", '(failures|errors)="[1-9]', sys.argv[1]])
-except subprocess.CalledProcessError as e:
-  print("No failures found to log!")
+except subprocess.CalledProcessError:
+  logger.info("No failures found to log!")
   exit(0)
 
 # For test cases, only show the ones that failed that have text (a log)
@@ -52,7 +57,7 @@ for f in files.strip().splitlines():
   try:
     r = JUnitXml.fromfile(f)
   except Exception as e:  # pylint: disable=broad-except
-    print("Ignoring this XML parse failure in {}: ".format(f), str(e))
+    logger.warning("Ignoring this XML parse failure in %s: %s", f, e)
 
   source_file = re.search(r"/(bazel_pip|tensorflow)/.*",
                           f.decode("utf-8")).group(0)

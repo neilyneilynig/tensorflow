@@ -79,7 +79,8 @@ class Converter:
     ]
     for p in paths_to_try:
       self._flatc_path = resource_loader.get_path_to_datafile(p)
-      if os.path.exists(self._flatc_path): break
+      if os.path.exists(self._flatc_path):
+        break
 
     def FindSchema(base_name):
       return resource_loader.get_path_to_datafile("%s" % base_name)

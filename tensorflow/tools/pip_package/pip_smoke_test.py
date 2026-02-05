@@ -20,6 +20,7 @@ tests and ensures they are in the pip package superset.
 
 import os
 import subprocess
+import logging
 
 os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
@@ -124,7 +125,8 @@ def main():
   pip_package_dependencies_list = [
       x.split()[0] for x in pip_package_dependencies_list
   ]
-  print("Pip package superset size: %d" % len(pip_package_dependencies_list))
+  logger = logging.getLogger(__name__)
+  logger.info("Pip package superset size: %d", len(pip_package_dependencies_list))
 
   # tf_py_test_dependencies is the list of dependencies for all python
   # tests in tensorflow
@@ -138,7 +140,7 @@ def main():
   tf_py_test_dependencies_list = [
       x.split()[0] for x in tf_py_test_dependencies.strip().split("\n")
   ]
-  print("Pytest dependency subset size: %d" % len(tf_py_test_dependencies_list))
+  logger.info("Pytest dependency subset size: %d", len(tf_py_test_dependencies_list))
 
   missing_dependencies = []
   # File extensions and endings to ignore
@@ -165,18 +167,19 @@ def main():
         missing_dependencies.append(dependency)
 
   print("Ignored files count: %d" % ignored_files_count)
-  print("Denylisted dependencies count: %d" % denylisted_dependencies_count)
+  logger.info("Ignored files count: %d", ignored_files_count)
+  logger.info("Denylisted dependencies count: %d", denylisted_dependencies_count)
   if missing_dependencies:
-    print("Missing the following dependencies from pip_packages:")
+    logger.error("Missing the following dependencies from pip_packages:")
     for missing_dependency in missing_dependencies:
-      print("\nMissing dependency: %s " % missing_dependency)
-      print("Affected Tests:")
+      logger.error("Missing dependency: %s", missing_dependency)
+      logger.error("Affected Tests:")
       rdep_query = ("rdeps(kind(py_test, %s), %s)" %
                     (" + ".join(PYTHON_TARGETS), missing_dependency))
       affected_tests = subprocess.check_output(
           ["bazel", "cquery", "--experimental_cc_shared_library", rdep_query])
       affected_tests_list = affected_tests.split("\n")[:-2]
-      print("\n".join(affected_tests_list))
+      logger.error("%s", "\n".join(affected_tests_list))
 
     raise RuntimeError("""
     One or more added test dependencies are not in the pip package.
@@ -184,8 +187,9 @@ If these test dependencies need to be in TensorFlow pip package, please add them
 Else add no_pip tag to the test.""")
 
   else:
-    print("TEST PASSED")
+    logger.info("TEST PASSED")
 
 
 if __name__ == "__main__":
+  logging.basicConfig()
   main()
